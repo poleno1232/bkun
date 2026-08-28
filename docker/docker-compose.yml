@@ -1,0 +1,85 @@
+
+services:
+#  сервис основного api приложения
+  app:
+#    папка для сборки и используемый dockerfile
+    build:
+      context: ../
+      dockerfile: ./docker/php-fpm/Dockerfile
+#     монтирование файлов проекта в контейнер
+    volumes:
+      - ../App:/application
+      - ./php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini
+      - ./php-etc/:/usr/local/etc/
+    logging:
+      options:
+        max-size: "50m"
+
+  #   Nginx Service
+  webserver:
+    image: nginx:1.17.9-alpine
+    working_dir: /application
+    volumes:
+      - ../App:/application
+#    монтируется конфиг nginx для приложения
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "${NGINX_PORT}:80"
+    logging:
+      options:
+        max-size: "50m"
+
+  # PostgreSQL Service
+  db:
+    image: 'bitnamilegacy/postgresql:13.2.0'
+    ports:
+      - '${POSTGRESQL_PORT}:5432'
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRESQL_POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+    logging:
+      options:
+        max-size: "50m"
+
+  # PostgreSQL Service
+#  test_db:
+#    image: 'bitnamilegacy/postgresql:13.2.0'
+#    ports:
+#      - '${POSTGRESQL_TEST_PORT}:5432'
+#    environment:
+#      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRESQL_TEST_POSTGRES_PASSWORD}
+#      - POSTGRESQL_USERNAME=${POSTGRESQL_TEST_USERNAME}
+#      - POSTGRESQL_PASSWORD=${POSTGRESQL_TEST_PASSWORD}
+#      - POSTGRESQL_DATABASE=${POSTGRESQL_TEST_DATABASE}
+#    logging:
+#      options:
+#        max-size: "50m"
+
+# Redis Service
+  redis:
+    image: redis:8.10.0-alpine3.23
+    ports:
+      - '${REDIS_PORT}:6379'
+    command: "redis-server --loadmodule /usr/lib/redis/modules/redisearch.so --appendonly yes"
+    logging:
+      options:
+        max-size: "50m"
+
+  scheduler:
+    build:
+      context: ../
+      dockerfile: ./docker/php-fpm/Dockerfile
+    working_dir: /application
+    volumes:
+      - ../App:/application
+    command: "php artisan schedule:work"
+    logging:
+      options:
+        max-size: "50m"
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local

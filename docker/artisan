@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker-compose exec -u www-data app php artisan $*
+
+
+запуск:
+cd docker && cp .env.example .env && docker-compose up -d
+
