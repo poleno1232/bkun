@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuestStatusEnum;
 use App\Observers\QuestObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -20,8 +21,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property string $name
  * @property string $description
  * @property ?string $image_url
- * @property bool $is_active
+ * @property QuestStatusEnum $status
  * @property \DateTime $next_live_at
+ * @property int $user_id
  * @property User $user
  * @property Collection<Chapter> $chapters
  */
@@ -30,15 +32,15 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'description',
     'image_url',
     'user_id',
-    'is_active',
+    'status',
     'next_live_at',
 ])]
 #[ObservedBy(QuestObserver::class)]
 class Quest extends Model
 {
     protected $casts = [
-        'is_active' => 'boolean',
         'next_live_at' => 'datetime',
+        'status' => QuestStatusEnum::class,
     ];
 
     public function user(): BelongsTo

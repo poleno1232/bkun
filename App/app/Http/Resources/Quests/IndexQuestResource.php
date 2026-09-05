@@ -24,7 +24,7 @@ class IndexQuestResource extends JsonResource
             'name' => $quest->name,
             'description' => $quest->description,
             'image_url' => $quest->image_url,
-            'is_active' => $quest->is_active,
+            'status' => $quest->status->label(),
             'user' => $quest->relationLoaded('user') ? UserResource::make($quest->user) : null,
         ];
     }

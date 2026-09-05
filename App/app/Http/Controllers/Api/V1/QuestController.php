@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Quests\QuestRequest;
+use App\Http\Requests\Quests\UpdateQuestRequest;
 use App\Http\Requests\SearchQuestRequest;
 use App\Http\Resources\Quests\IndexQuestResource;
 use App\Http\Resources\Quests\QuestResource;
@@ -30,7 +31,7 @@ class QuestController extends Controller
     {
         $quest->load(['user', 'chapters']);
 
-        return QuestResource::make($quest);
+        return QuestResource::make($this->questService->show($quest));
     }
 
     public function store(QuestRequest $request): QuestResource
@@ -40,7 +41,7 @@ class QuestController extends Controller
         return QuestResource::make($quest);
     }
 
-    public function update(Quest $quest, QuestRequest $request): QuestResource
+    public function update(Quest $quest, UpdateQuestRequest $request): QuestResource
     {
         $quest = $this->questService->update($quest, $request->validated());
 

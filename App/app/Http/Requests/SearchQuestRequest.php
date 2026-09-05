@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\QuestStatusEnum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SearchQuestRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class SearchQuestRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
+            'status' => ['nullable', 'string', Rule::in(array_keys(QuestStatusEnum::labels()))],
             'user_id' => 'nullable|integer|exists:users,id',
         ];
     }

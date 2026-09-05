@@ -232,6 +232,8 @@
       <path value="$PROJECT_DIR$/App/vendor/dragonmantank/cron-expression" />
       <path value="$PROJECT_DIR$/App/vendor/graham-campbell/result-type" />
       <path value="$PROJECT_DIR$/App/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/App/vendor/mews/purifier" />
+      <path value="$PROJECT_DIR$/App/vendor/ezyang/htmlpurifier" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3">
