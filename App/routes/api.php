@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ChapterController;
+use App\Http\Controllers\Api\V1\ChatController;
 use App\Http\Controllers\Api\V1\QuestController;
 use App\Http\Controllers\Api\V1\UpdateController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,16 @@ Route::prefix('v1')->group(function () {
                     Route::put('/{chapter}', [ChapterController::class, 'update']);
                 });
             });
+
+            Route::prefix('/chats')->group(function () {
+                Route::get('/', [ChatController::class, 'index']);
+                Route::post('/', [ChatController::class, 'store']);
+
+                Route::prefix('/{message}')->group(function () {
+                    Route::put('/', [ChatController::class, 'update']);
+                    Route::get('/', [ChatController::class, 'show']);
+                });
+            });
         });
 
         Route::middleware('auth:sanctum')->group(function () {
@@ -43,6 +54,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('chapters/{chapter}/updates')->group(function () {
             Route::post('/', [UpdateController::class, 'store']);
+            Route::put('/{update}', [UpdateController::class, 'update']);
         });
     });
 });

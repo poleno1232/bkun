@@ -234,6 +234,13 @@
       <path value="$PROJECT_DIR$/App/vendor/laravel/sanctum" />
       <path value="$PROJECT_DIR$/App/vendor/mews/purifier" />
       <path value="$PROJECT_DIR$/App/vendor/ezyang/htmlpurifier" />
+      <path value="$PROJECT_DIR$/App/vendor/beberlei/assert" />
+      <path value="$PROJECT_DIR$/App/vendor/flix-tech/avro-php" />
+      <path value="$PROJECT_DIR$/App/vendor/mateusjunges/confluent-schema-registry-api" />
+      <path value="$PROJECT_DIR$/App/vendor/mateusjunges/avro-serde-php" />
+      <path value="$PROJECT_DIR$/App/vendor/mateusjunges/laravel-kafka" />
+      <path value="$PROJECT_DIR$/App/vendor/functional-php/fantasy-land" />
+      <path value="$PROJECT_DIR$/App/vendor/widmogrod/php-functional" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3">

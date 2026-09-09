@@ -20,20 +20,20 @@ RUN apt-get update \
         libpq-dev \
         libldb-dev  \
         libldap2-dev \
+        librdkafka-dev \
         git \
         vim \
-        # установка php расширений
+        # установка php расширений \
         && docker-php-ext-install -j$(nproc) bcmath zip pdo_pgsql exif sockets ldap pcntl \
         && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
 
-RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-        && docker-php-ext-enable ldap
+RUN pecl install redis \
+    && docker-php-ext-enable redis.so
 
-RUN pecl install redis xdebug \
-    && docker-php-ext-enable redis.so xdebug
+RUN pecl install rdkafka && docker-php-ext-enable rdkafka
 
 # установка composer
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer

@@ -24,16 +24,11 @@ class UpdateService
         };
     }
 
-    /**
-     * @param array $data
-     * @param Contentable|SubmissionUpdate|TextUpdate $contentable
-     * @return Contentable
-     */
-    public function edit(array $data, Contentable $contentable): Contentable
+    public function edit(array $data, int $updateId): Contentable
     {
         return match ($data['type']) {
-            UpdateTypeEnum::TEXT => $this->editTextUpdate($data, $contentable),
-            UpdateTypeEnum::SUBMISSION->value => $this->editSubmissionUpdate($data, $contentable),
+            UpdateTypeEnum::TEXT->value => $this->editTextUpdate($data, TextUpdate::firstOrFail($updateId)),
+            UpdateTypeEnum::SUBMISSION->value => $this->editSubmissionUpdate($data, SubmissionUpdate::firstOrFail($updateId)),
             default => throw ValidationException::withMessages([
                 'type' => "Unsupported update type",
             ])

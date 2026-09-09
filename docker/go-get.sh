@@ -1,0 +1,1 @@
+docker compose run --rm goapp go get -u $1

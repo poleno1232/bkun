@@ -22,4 +22,12 @@ class UpdateController extends Controller
 
         return UpdateResource::make($update);
     }
+
+    public function update(UpdateRequest $request, Chapter $chapter, int $updateId)
+    {
+        $validated = $request->validated();
+        $update = $this->updateService->edit($validated, $updateId);
+
+        return UpdateResource::make($update);
+    }
 }
