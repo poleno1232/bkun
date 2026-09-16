@@ -2,11 +2,13 @@ package processor
 
 import (
 	"chat/internal/config"
+	"chat/internal/dto"
 	"chat/internal/hub"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/coder/websocket"
@@ -44,18 +46,31 @@ func (cs *ChatServer) HandleConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close(websocket.StatusInternalError, "internal error")
 
-	cs.hub.Register(conn)
+	queryQuest := r.URL.Query().Get("quest_id")
+	if queryQuest == "" {
+		conn.Close(websocket.StatusUnsupportedData, "unsupported quest_id")
+		return
+	}
 
-	cs.keepAlive(conn, 30*time.Second)
+	questId, err := strconv.Atoi(queryQuest)
+	if err != nil {
+		conn.Close(websocket.StatusUnsupportedData, "unsupported quest_id")
+		return
+	}
+
+	client := dto.NewClient(conn, questId)
+	cs.hub.Register(client)
+
+	cs.keepAlive(client, 30*time.Second)
 }
 
-func (cs *ChatServer) keepAlive(c *websocket.Conn, interval time.Duration) {
+func (cs *ChatServer) keepAlive(client *dto.Client, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	go func() {
 		for {
-			_, _, err := c.Read(cs.ctx)
+			_, _, err := client.Read(cs.ctx)
 			if err != nil {
 				return
 			}
@@ -69,12 +84,12 @@ func (cs *ChatServer) keepAlive(c *websocket.Conn, interval time.Duration) {
 		case <-ticker.C:
 			// Give each ping operation a short timeout
 			pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			err := c.Ping(pingCtx)
+			err := client.Ping(pingCtx)
 			cancel()
 
 			if err != nil {
 				log.Printf("ping failed: %v", err)
-				cs.hub.Unregister(c)
+				cs.hub.Unregister(client)
 				return
 			}
 
@@ -86,7 +101,10 @@ func (cs *ChatServer) keepAlive(c *websocket.Conn, interval time.Duration) {
 				continue
 			}
 
-			c.Write(cs.ctx, websocket.MessageText, marshal)
+			err = client.Write(cs.ctx, websocket.MessageText, marshal)
+			if err != nil {
+				return
+			}
 		}
 	}
 }

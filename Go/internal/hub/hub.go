@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"chat/internal/dto"
 	"context"
 	"fmt"
 	"sync"
@@ -10,32 +11,32 @@ import (
 )
 
 type Hub struct {
-	clients    map[*websocket.Conn]bool
-	broadcast  chan []byte
-	register   chan *websocket.Conn
-	unregister chan *websocket.Conn
+	clients    map[string]map[*dto.Client]struct{} // looks like an abomination, not actually a one
+	broadcast  chan *dto.Broadcast
+	register   chan *dto.Client
+	unregister chan *dto.Client
 	mu         sync.Mutex
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		clients:    make(map[*websocket.Conn]bool),
-		broadcast:  make(chan []byte, 256),
-		register:   make(chan *websocket.Conn),
-		unregister: make(chan *websocket.Conn),
+		clients:    make(map[string]map[*dto.Client]struct{}),
+		broadcast:  make(chan *dto.Broadcast, 256),
+		register:   make(chan *dto.Client),
+		unregister: make(chan *dto.Client),
 	}
 }
 
-func (h *Hub) Broadcast(msg []byte) {
+func (h *Hub) Broadcast(msg *dto.Broadcast) {
 	h.broadcast <- msg
 }
 
-func (h *Hub) Register(conn *websocket.Conn) {
-	h.register <- conn
+func (h *Hub) Register(client *dto.Client) {
+	h.register <- client
 }
 
-func (h *Hub) Unregister(conn *websocket.Conn) {
-	h.unregister <- conn
+func (h *Hub) Unregister(client *dto.Client) {
+	h.unregister <- client
 }
 
 func (h *Hub) ConnectionCount() int {
@@ -48,35 +49,61 @@ func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			for c := range h.clients {
-				c.CloseNow()
-			}
-			return
-		case conn := <-h.register:
 			h.mu.Lock()
-			h.clients[conn] = true
+			for questId, clients := range h.clients {
+				for c := range clients {
+					c.CloseNow()
+				}
+				delete(h.clients, questId)
+			}
+			h.mu.Unlock()
+			return
+		case client := <-h.register:
+			h.mu.Lock()
+			questId := client.QuestId()
+			if h.clients[questId] == nil {
+				h.clients[questId] = make(map[*dto.Client]struct{})
+			}
+			h.clients[questId][client] = struct{}{}
 			h.mu.Unlock()
 			fmt.Println("New registered client")
-		case conn := <-h.unregister:
+		case client := <-h.unregister:
 			h.mu.Lock()
-			delete(h.clients, conn)
-			conn.CloseNow()
-			h.mu.Unlock()
-			fmt.Println("Client is disconnected")
-		case msg := <-h.broadcast:
-			h.mu.Lock()
-			for c := range h.clients {
-				ctx, cancel := context.WithTimeout(
-					context.Background(), 5*time.Second,
-				)
-				err := c.Write(ctx, websocket.MessageText, msg)
-				cancel()
-				if err != nil {
-					delete(h.clients, c)
-					c.CloseNow()
+			questId := client.QuestId()
+			if clients, ok := h.clients[questId]; ok {
+				delete(clients, client)
+
+				if len(clients) == 0 {
+					delete(h.clients, questId)
 				}
 			}
 			h.mu.Unlock()
+
+			client.CloseNow()
+			fmt.Println("Client is disconnected")
+		case msg := <-h.broadcast:
+			h.mu.Lock()
+			clients, exists := h.clients[msg.QuestId()]
+			if !exists {
+				h.mu.Unlock()
+				continue // No one in this quest, skip
+			}
+
+			targets := make([]*dto.Client, 0, len(clients))
+			for c := range clients {
+				targets = append(targets, c)
+			}
+			h.mu.Unlock()
+
+			for _, c := range targets {
+				ioCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				err := c.Write(ioCtx, websocket.MessageText, msg.Msg())
+				cancel()
+
+				if err != nil {
+					h.Unregister(c)
+				}
+			}
 		}
 	}
 }

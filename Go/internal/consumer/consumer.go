@@ -77,10 +77,9 @@ func (c *Consumer) Run(ctx context.Context) error {
 
 			if err := c.processor.Process(ctx, msg); err != nil {
 				c.logger.ErrorContext(ctx, "Failed to process message", "error", err, "offset", msg.Offset)
-			} else {
-				// Mark the record as successfully processed so it can be auto-committed
-				c.client.MarkCommitRecords(record)
 			}
+
+			c.client.MarkCommitRecords(record)
 		}
 	}
 }

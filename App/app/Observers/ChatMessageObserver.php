@@ -19,6 +19,7 @@ class ChatMessageObserver
 
         Kafka::publish()
             ->onTopic('chat-messages')
+            ->withKafkaKey($chatMessage->quest_id)
             ->withBody(
                 KafkaMessageDto::make(ChatEventEnum::MESSAGE_CREATED, $messageDto)
             )->send();
@@ -32,6 +33,7 @@ class ChatMessageObserver
 
         Kafka::publish()
             ->onTopic('chat-messages')
+            ->withKafkaKey($chatMessage->quest_id)
             ->withBody(
                 KafkaMessageDto::make(ChatEventEnum::MESSAGE_UPDATED, $messageDto)
             )->send();

@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"chat/internal/dto"
 	"chat/internal/hub"
 	"context"
 )
@@ -26,7 +27,12 @@ func NewLogProcessor(newhub *hub.Hub) *MessageProcessor {
 }
 
 func (p *MessageProcessor) Process(ctx context.Context, msg Message) error {
-	p.hub.Broadcast(msg.Value)
+	key := string(msg.Key[:])
+	broadcast, err := dto.NewBroadcast(key, msg.Value)
+	if err != nil {
+		return err
+	}
+	p.hub.Broadcast(broadcast)
 
 	return nil
 }
