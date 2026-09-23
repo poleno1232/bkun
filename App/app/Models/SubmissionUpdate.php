@@ -22,12 +22,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Quest $quest
  * @property int $quest_id
  * @property string $type
+ * @property null|\DateTime $closes_at
+ * @property null|bool $is_closed
  */
 #[Fillable([
     'quest_id',
     'chapter_id',
     'posted_at',
     'name',
+    'closed_at',
 ])]
 class SubmissionUpdate extends Model implements Contentable
 {
@@ -42,7 +45,16 @@ class SubmissionUpdate extends Model implements Contentable
 
     public function content(): Attribute
     {
-        return Attribute::get(fn () => $this->submissions->join('<br>'));
+        return Attribute::get(
+            function () {
+                return $this->submissions->map(fn (Submission $submission) => [
+                    'id' => $submission->id,
+                    'submission_update_id' => $submission->submission_update_id,
+                    'user_id' => $submission->user_id,
+                    'text' => $submission->text,
+                ]);
+            }
+        );
     }
 
     public function title(): Attribute
@@ -53,5 +65,15 @@ class SubmissionUpdate extends Model implements Contentable
     public function type(): Attribute
     {
         return Attribute::get(fn () => UpdateTypeEnum::SUBMISSION->value);
+    }
+
+    public function closes_at(): Attribute
+    {
+        return Attribute::get(fn () => $this->closes_at);
+    }
+
+    public function is_closed(): Attribute
+    {
+        return Attribute::get(fn () => $this->is_closed);
     }
 }

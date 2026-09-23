@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Contracts\Contentable;
 use App\Enums\UpdateTypeEnum;
-use App\Traits\QuestUpdate;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -29,7 +28,7 @@ class TextUpdate extends Model implements Contentable
 {
     public function content(): Attribute
     {
-        return Attribute::get(fn() => $this->text);
+        return Attribute::get(fn() => ['text' => $this->text]);
     }
 
     public function title(): Attribute
@@ -40,5 +39,15 @@ class TextUpdate extends Model implements Contentable
     public function type(): Attribute
     {
         return Attribute::get(fn () => UpdateTypeEnum::TEXT->value);
+    }
+
+    public function closes_at(): Attribute
+    {
+        return Attribute::get(fn() => null);
+    }
+
+    public function is_closed(): Attribute
+    {
+        return Attribute::get(fn() => null);
     }
 }
