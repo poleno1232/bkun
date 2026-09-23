@@ -22,8 +22,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Collection<Contentable> $updates
  *
  * @property Quest $quest
- * @property Collection<TextUpdate> $textUpdates
- * @property Collection<SubmissionUpdate> $submissionUpdates
+ * @property Collection<TextUpdate>|array $textUpdates
+ * @property Collection<SubmissionUpdate>|array $submissionUpdates
+ * @property Collection<VoteUpdate>|array $voteUpdates
  */
 #[Fillable([
     'title',
@@ -48,16 +49,23 @@ class Chapter extends Model
         return $this->hasMany(SubmissionUpdate::class);
     }
 
+    public function votesUpdates(): HasMany
+    {
+        return $this->hasMany(VoteUpdate::class);
+    }
+
     public function withUpdates(): Chapter
     {
-        return $this->load(['textUpdates', 'submissionUpdates']);
+        return $this->load(['textUpdates', 'submissionUpdates', 'votesUpdates']);
     }
 
     protected function updates(): Attribute
     {
         return Attribute::get(function () {
             return $this->withUpdates()
-                ->textUpdates->concat($this->submissionUpdates)
+                ->textUpdates
+                ->concat($this->submissionUpdates)
+                ->concat($this->voteUpdates)
                 ->sortBy('posted_at')->values();
         });
     }
