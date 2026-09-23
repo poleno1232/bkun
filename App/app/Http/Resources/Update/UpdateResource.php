@@ -22,6 +22,8 @@ class UpdateResource extends JsonResource
             'id' => $update->id,
             'type' => $update->type,
             'title' => $update->title,
+            'is_closed' => $update->is_closed,
+            'closes_at' => $update->closes_at,
             'content' => $update->content
         ];
     }

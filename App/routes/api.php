@@ -53,8 +53,11 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('chapters/{chapter}/updates')->group(function () {
+            Route::get('/{updateId}/{type}', [UpdateController::class, 'show']);
             Route::post('/', [UpdateController::class, 'store']);
-            Route::put('/{update}', [UpdateController::class, 'update']);
+            Route::put('/{updateId}', [UpdateController::class, 'update']);
+            Route::post('/{updateId}/open', [UpdateController::class, 'open']);
+            Route::post('/{updateId}/close', [UpdateController::class, 'close']);
         });
     });
 });
