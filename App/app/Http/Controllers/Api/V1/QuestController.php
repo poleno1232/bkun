@@ -11,11 +11,12 @@ use App\Http\Resources\Quests\QuestResource;
 use App\Models\Quest;
 use App\Services\QuestService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class QuestController extends Controller
 {
     public function __construct(
-        private QuestService $questService
+        private readonly QuestService $questService
     ){}
 
     public function index(SearchQuestRequest $request)
@@ -29,6 +30,7 @@ class QuestController extends Controller
 
     public function show(Quest $quest): QuestResource
     {
+        Gate::authorize('view', [auth()->user(), $quest]);
         $quest->load(['user', 'chapters']);
 
         return QuestResource::make($this->questService->show($quest));
@@ -43,6 +45,7 @@ class QuestController extends Controller
 
     public function update(Quest $quest, UpdateQuestRequest $request): QuestResource
     {
+        Gate::authorize('update', $quest);
         $quest = $this->questService->update($quest, $request->validated());
 
         return QuestResource::make($quest);

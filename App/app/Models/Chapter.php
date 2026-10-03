@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Contracts\Contentable;
 use App\Observers\ChapterObserver;
+use App\Policies\QuestPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'order',
 ])]
 #[ObservedBy(ChapterObserver::class)]
+#[UsePolicy(QuestPolicy::class)]
 class Chapter extends Model
 {
     public function quest(): BelongsTo
@@ -64,8 +67,8 @@ class Chapter extends Model
         return Attribute::get(function () {
             return $this->withUpdates()
                 ->textUpdates
-                ->concat($this->submissionUpdates)
-                ->concat($this->voteUpdates)
+                ->concat($this->submissionUpdates ?? [])
+                ->concat($this->voteUpdates ?? [])
                 ->sortBy('posted_at')->values();
         });
     }

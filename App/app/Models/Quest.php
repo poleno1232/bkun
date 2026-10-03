@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\QuestStatusEnum;
 use App\Observers\QuestObserver;
+use App\Policies\QuestPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'next_live_at',
 ])]
 #[ObservedBy(QuestObserver::class)]
+#[UsePolicy(QuestPolicy::class)]
 class Quest extends Model
 {
     protected $casts = [

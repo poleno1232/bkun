@@ -9,6 +9,7 @@ use App\Http\Resources\Update\UpdateResource;
 use App\Models\Chapter;
 use App\Services\UpdateService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class UpdateController extends Controller
 {
@@ -16,8 +17,9 @@ class UpdateController extends Controller
     {
     }
 
-    public function show(int $chapter, int $updateId, UpdateTypeEnum $type): UpdateResource
+    public function show(Chapter $chapter, int $updateId, UpdateTypeEnum $type): UpdateResource
     {
+        Gate::authorize('view', $chapter->quest);
         $update = $this->updateService->getUpdate($updateId, $type);
 
         return UpdateResource::make($update);
@@ -25,6 +27,7 @@ class UpdateController extends Controller
 
     public function store(UpdateRequest $request, Chapter $chapter)
     {
+        Gate::authorize('update', $chapter->quest);
         $validated = $request->validated();
         $update = $this->updateService->create($validated, $chapter);
 
@@ -33,20 +36,23 @@ class UpdateController extends Controller
 
     public function update(UpdateRequest $request, Chapter $chapter, int $updateId)
     {
+        Gate::authorize('update', $chapter->quest);
         $validated = $request->validated();
         $update = $this->updateService->edit($validated, $updateId);
 
         return UpdateResource::make($update);
     }
 
-    public function open(int $updateId)
+    public function open(Chapter $chapter, int $updateId)
     {
+        Gate::authorize('update', $chapter->quest);
         $update = $this->updateService->open($updateId);
         return UpdateResource::make($update);
     }
 
-    public function close(int $chapterId, int $updateId)
+    public function close(Chapter $chapter, int $updateId)
     {
+        Gate::authorize('update', $chapter->quest);
         $update = $this->updateService->close($updateId);
         return UpdateResource::make($update);
     }

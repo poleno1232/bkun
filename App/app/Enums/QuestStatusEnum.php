@@ -35,4 +35,13 @@ enum QuestStatusEnum : string
             self::HIDDEN->value,
         ];
     }
+
+    public static function viewable(QuestStatusEnum $questStatus): bool
+    {
+        return in_array($questStatus, [
+            self::ACTIVE,
+            self::HIATUS,
+            self::ABANDONED,
+        ]);
+    }
 }
