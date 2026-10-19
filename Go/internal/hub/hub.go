@@ -96,13 +96,15 @@ func (h *Hub) Run(ctx context.Context) {
 			h.mu.Unlock()
 
 			for _, c := range targets {
-				ioCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-				err := c.Write(ioCtx, websocket.MessageText, msg.Msg())
-				cancel()
+				go func(conn *dto.Client) {
+					ioCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+					defer cancel()
+					err := conn.Write(ioCtx, websocket.MessageText, msg.Msg())
 
-				if err != nil {
-					h.Unregister(c)
-				}
+					if err != nil {
+						h.Unregister(conn)
+					}
+				}(c)
 			}
 		}
 	}
