@@ -33,6 +33,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 RUN pecl install redis \
     && docker-php-ext-enable redis.so
 
+RUN pecl install pcov \
+    && docker-php-ext-enable pcov
+
 RUN pecl install rdkafka && docker-php-ext-enable rdkafka
 
 # установка composer
