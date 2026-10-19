@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -26,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property null|bool $is_closed
  */
 #[Fillable([
-    'quest_id',
     'chapter_id',
     'posted_at',
     'name',
@@ -37,6 +37,11 @@ class SubmissionUpdate extends Model implements Contentable
     protected $with = [
         'submissions',
     ];
+
+    public function chapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class);
+    }
 
     public function submissions(): HasMany
     {
@@ -67,13 +72,13 @@ class SubmissionUpdate extends Model implements Contentable
         return Attribute::get(fn () => UpdateTypeEnum::SUBMISSION->value);
     }
 
-    public function closes_at(): Attribute
+    public function closesAt(): Attribute
     {
-        return Attribute::get(fn () => $this->closes_at);
+        return Attribute::get(fn () => ($this->attributes['closes_at'] ?? null));
     }
 
-    public function is_closed(): Attribute
+    public function isClosed(): Attribute
     {
-        return Attribute::get(fn () => $this->is_closed);
+        return Attribute::get(fn () => (bool)($this->attributes['is_closed'] ?? null));
     }
 }

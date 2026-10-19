@@ -17,10 +17,13 @@ class QuestController extends Controller
 {
     public function __construct(
         private readonly QuestService $questService
-    ){}
+    ){
+
+    }
 
     public function index(SearchQuestRequest $request)
     {
+        $this->ensureUserIsAuthenticated();
         return IndexQuestResource::collection(
             $this->questService
                 ->getQuery($request->validated())
@@ -30,7 +33,9 @@ class QuestController extends Controller
 
     public function show(Quest $quest): QuestResource
     {
-        Gate::authorize('view', [auth()->user(), $quest]);
+        $this->ensureUserIsAuthenticated();
+
+        Gate::authorize('view', $quest);
         $quest->load(['user', 'chapters']);
 
         return QuestResource::make($this->questService->show($quest));

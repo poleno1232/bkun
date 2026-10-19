@@ -34,12 +34,8 @@ class QuestService
 
     public function show(Quest $quest)
     {
-        if ($quest->user_id == auth()->id()) {
+        if ($quest->user_id == \auth()->id()) {
             return $quest;
-        }
-
-        if ($quest->status == QuestStatusEnum::HIDDEN || $quest->status == QuestStatusEnum::UNLISTED) {
-            throw new ModelNotFoundException();
         }
 
         return $quest;
@@ -47,7 +43,12 @@ class QuestService
 
     public function create(array $data)
     {
-        $quest = Quest::create(array_merge($data, ['user_id' => auth()->id()]));
+        $quest = Quest::create(array_merge(
+            $data, [
+                'user_id' => auth()->id(),
+                'status' => QuestStatusEnum::UNLISTED
+            ]
+        ));
         $quest->load(['user', 'chapters']);
 
         return $quest;

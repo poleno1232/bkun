@@ -19,6 +19,7 @@ class ChapterResource extends JsonResource
         /** @var Chapter $chapter */
         $chapter = $this->resource;
         return [
+            'id' => $chapter->id,
             'title' => $chapter->title,
             'updates' => $chapter->relationLoaded('submissionUpdates') && $chapter->relationLoaded('textUpdates')
                 ? UpdateResource::collection($chapter->updates) : null,

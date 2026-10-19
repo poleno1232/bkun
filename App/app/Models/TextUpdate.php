@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @mixin Builder
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Quest $quest
  * @property int $quest_id
  * @property string $type
+ * @property null $closesAt
  */
 #[Fillable([
     'text',
@@ -26,6 +28,12 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class TextUpdate extends Model implements Contentable
 {
+
+    public function chapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class);
+    }
+
     public function content(): Attribute
     {
         return Attribute::get(fn() => ['text' => $this->text]);
@@ -41,13 +49,13 @@ class TextUpdate extends Model implements Contentable
         return Attribute::get(fn () => UpdateTypeEnum::TEXT->value);
     }
 
-    public function closes_at(): Attribute
+    public function closesAt(): Attribute
     {
-        return Attribute::get(fn() => null);
+        return Attribute::get(fn() => UpdateTypeEnum::TEXT->value);
     }
 
-    public function is_closed(): Attribute
+    public function isClosed(): Attribute
     {
-        return Attribute::get(fn() => null);
+        return Attribute::get(fn() => true);
     }
 }

@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property ?string $image_url
  * @property QuestStatusEnum $status
  * @property \DateTime $next_live_at
+ * @property bool $verified_only
  * @property int $user_id
  * @property User $user
  * @property Collection<Chapter> $chapters
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'user_id',
     'status',
     'next_live_at',
+    'verified_only',
 ])]
 #[ObservedBy(QuestObserver::class)]
 #[UsePolicy(QuestPolicy::class)]

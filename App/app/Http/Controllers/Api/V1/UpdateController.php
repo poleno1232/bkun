@@ -43,17 +43,17 @@ class UpdateController extends Controller
         return UpdateResource::make($update);
     }
 
-    public function open(Chapter $chapter, int $updateId)
+    public function open(Chapter $chapter, int $updateId, string $type)
     {
         Gate::authorize('update', $chapter->quest);
-        $update = $this->updateService->open($updateId);
+        $update = $this->updateService->open($updateId, $type);
         return UpdateResource::make($update);
     }
 
-    public function close(Chapter $chapter, int $updateId)
+    public function close(Chapter $chapter, int $updateId, string $type)
     {
         Gate::authorize('update', $chapter->quest);
-        $update = $this->updateService->close($updateId);
+        $update = $this->updateService->close($updateId, $type);
         return UpdateResource::make($update);
     }
 }

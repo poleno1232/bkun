@@ -24,7 +24,6 @@ class ChatMessageRequest extends FormRequest
     {
         return [
             'message' => 'required|string|min:1',
-            'user_id' => 'nullable|integer|exists:users,id',
             'ip' => 'required|ip',
             'posted_at' => 'required|date',
         ];
@@ -33,7 +32,6 @@ class ChatMessageRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'user_id' => auth()->id(),
             'ip' => $this->ip(),
             'posted_at' => now(),
         ]);

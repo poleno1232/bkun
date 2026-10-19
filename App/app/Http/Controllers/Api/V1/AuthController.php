@@ -10,6 +10,7 @@ use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,9 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
         $user = $this->userService->findByName($credentials['name']);
+        if (!Hash::check($credentials['password'], $user->password)) {
+            abort(401);
+        }
 
         $token = $user->createToken($user->name);
 

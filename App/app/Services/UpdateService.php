@@ -73,7 +73,7 @@ class UpdateService
             'chapter_id' => $chapter->id,
             'name' => $data['title'],
             'posted_at' => now(),
-            'closes_at' => $data['closed_at'],
+            'closes_at' => $data['closed_at'] ?? null,
         ]);
     }
 
@@ -134,9 +134,16 @@ class UpdateService
         return $voteUpdate;
     }
 
-    public function open(int $updateId): Contentable|Model
+    public function open(int $updateId, string $type): Contentable|Model
     {
-        $update = VoteUpdate::find($updateId);
+        $update = match ($type) {
+            UpdateTypeEnum::SUBMISSION->value => SubmissionUpdate::find($updateId),
+            UpdateTypeEnum::VOTE->value => VoteUpdate::find($updateId),
+            default => throw ValidationException::withMessages([
+                'type' => "Unsupported update type",
+            ])
+        };
+
         if (!$update) {
             throw new ModelNotFoundException();
         }
@@ -145,10 +152,15 @@ class UpdateService
         return $update->refresh();
     }
 
-    public function close(int $updateId): Contentable|Model
+    public function close(int $updateId, string $type): Contentable|Model
     {
-        /** @var Contentable $update */
-        $update = VoteUpdate::find($updateId);
+        $update = match ($type) {
+            UpdateTypeEnum::SUBMISSION->value => SubmissionUpdate::find($updateId),
+            UpdateTypeEnum::VOTE->value => VoteUpdate::find($updateId),
+            default => throw ValidationException::withMessages([
+                'type' => "Unsupported update type",
+            ])
+        };
         if (!$update) {
             throw new ModelNotFoundException();
         }

@@ -2,20 +2,15 @@
 
 namespace App\Policies;
 
+use App\Enums\QuestStatusEnum;
+use App\Enums\RoleEnum;
 use App\Models\ChatMessage;
+use App\Models\Quest;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class ChatMessagePolicy
 {
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(): bool
-    {
-        return true;
-    }
-
     /**
      * Determine whether the user can update the model.
      */

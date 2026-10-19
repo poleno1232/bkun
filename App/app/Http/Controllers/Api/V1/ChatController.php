@@ -16,18 +16,18 @@ class ChatController extends Controller
 {
     public function __construct(protected ChatService $chatService)
     {
-
+        $this->ensureUserIsAuthenticated();
     }
     public function index(Quest $quest)
     {
         Gate::authorize('view', $quest);
 
         return ChatMessageResource::collection(
-            ChatMessage::where('quest_id', $quest->id)->orderByDesc('posted_at')->paginate()
+            ChatMessage::where('quest_id', $quest->id)->with('user')->orderByDesc('posted_at')->paginate()
         );
     }
 
-    public function show(int $quest, ChatMessage $message)
+    public function show(Quest $quest, ChatMessage $message)
     {
         Gate::authorize('view', $quest);
 
@@ -36,12 +36,15 @@ class ChatController extends Controller
 
     public function store(ChatMessageRequest $request, Quest $quest)
     {
-        Gate::authorize('view', $quest);
-        Gate::authorize('create');
+        $this->ensureUserIsAuthenticated();
+        Gate::authorize('canHaveAnonymousCommenters', $quest);
+
         $validated = $request->validated();
+        $validated['user_id'] = auth()->id();
+
         $this->chatService->create($validated, $quest);
 
-        return response()->noContent();
+        return response()->noContent(201);
     }
 
     public function update(UpdateChatMessageRequest $request, Quest $quest, ChatMessage $message)

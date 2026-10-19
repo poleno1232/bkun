@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property Collection<Vote> $votes
  *
- * @property null|\DateTime $closes_at
+ * @property null|\DateTime $closed_at
  * @property null|bool $is_closed
  */
 #[Fillable([
@@ -32,6 +33,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class VoteUpdate extends Model implements Contentable
 {
     protected $with = ['votes'];
+
+
+
+    public function chapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class);
+    }
 
     public function content(): Attribute
     {
@@ -61,13 +69,13 @@ class VoteUpdate extends Model implements Contentable
         return $this->hasMany(Vote::class);
     }
 
-    public function closes_at(): Attribute
+    public function closesAt(): Attribute
     {
-        return Attribute::get(fn () => $this->closes_at);
+        return Attribute::get(fn () => $this->closed_at);
     }
 
-    public function is_closed(): Attribute
+    public function isClosed(): Attribute
     {
-        return Attribute::get(fn () => $this->is_closed);
+        return Attribute::get(fn () => (bool)($this->attributes['is_closed'] ?? null));
     }
 }

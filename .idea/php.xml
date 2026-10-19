@@ -241,6 +241,8 @@
       <path value="$PROJECT_DIR$/App/vendor/mateusjunges/laravel-kafka" />
       <path value="$PROJECT_DIR$/App/vendor/functional-php/fantasy-land" />
       <path value="$PROJECT_DIR$/App/vendor/widmogrod/php-functional" />
+      <path value="$PROJECT_DIR$/App/vendor/spatie/laravel-permission" />
+      <path value="$PROJECT_DIR$/App/vendor/spatie/laravel-package-tools" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3">

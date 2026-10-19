@@ -17,7 +17,9 @@ class UpdateQuestRequest extends QuestRequest
     public function rules(): array
     {
         return array_merge(parent::rules(), [
-            'status' => ['required', Rule::in(QuestStatusEnum::allowed())]
+            'status' => ['required', Rule::in(QuestStatusEnum::allowed())],
+            'next_live_at' => ['nullable', 'date'],
+            'verified_only' => ['required', 'boolean'],
         ]);
     }
 }
