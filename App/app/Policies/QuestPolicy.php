@@ -2,11 +2,12 @@
 
 namespace App\Policies;
 
-use App\Enums\PermissionEnum;
 use App\Enums\QuestStatusEnum;
 use App\Enums\RoleEnum;
+use App\Models\BlockedUserQuest;
 use App\Models\Quest;
 use App\Models\User;
+use Illuminate\Support\Facades\Request;
 
 class QuestPolicy
 {
@@ -42,12 +43,30 @@ class QuestPolicy
         return $quest->user_id == $user->id || $user->hasAnyRole([RoleEnum::ADMIN, RoleEnum::MODERATOR]);
     }
 
-    public function canHaveAnonymousCommenters(?User $user, Quest $quest): bool
+    public function canPostInQuest(?User $user, Quest $quest): bool
     {
-        if (!$quest->verified_only) {
+        if (!$user && $quest->verified_only) {
+            return false;
+        }
+
+        if ($user?->id == $quest->user_id || $user?->hasAnyRole([RoleEnum::ADMIN, RoleEnum::MODERATOR])) {
             return true;
         }
 
-        return $quest->verified_only && $user;
+        $isBlocked = BlockedUserQuest::where(function ($query) use ($user, $quest) {
+            $ip = Request::ip();
+            return $query->orWhere('user_id', $user?->id)->orWhere('ip', $ip);
+        })->where('quest_id', $quest->id)->exists();
+
+        if ($isBlocked) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canBlockOrUnblock(User $user, Quest $quest): bool
+    {
+        return $quest->user_id == $user->id || $user->hasAnyRole([RoleEnum::ADMIN]);
     }
 }

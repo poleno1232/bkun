@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Enums\QuestStatusEnum;
+use App\Models\BlockedUserQuest;
 use App\Models\Quest;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\User;
 
 class QuestService
 {
@@ -60,5 +61,21 @@ class QuestService
         $quest->load(['user', 'chapters']);
 
         return $quest;
+    }
+
+    public function blockUserInQuest(User $user, Quest $quest)
+    {
+        BlockedUserQuest::updateOrCreate([
+            'quest_id' => $quest->id,
+            'user_id'=> $user->id,
+            'ip_address' => request()->ip(),
+        ]);
+    }
+
+    public function unblockUserInQuest(User $user, Quest $quest)
+    {
+        BlockedUserQuest::where('user_id', $user->id)
+            ->where('quest_id', $quest->id)
+            ->delete();
     }
 }

@@ -37,7 +37,7 @@ class ChatController extends Controller
     public function store(ChatMessageRequest $request, Quest $quest)
     {
         $this->ensureUserIsAuthenticated();
-        Gate::authorize('canHaveAnonymousCommenters', $quest);
+        Gate::authorize('canPostInQuest', $quest);
 
         $validated = $request->validated();
         $validated['user_id'] = auth()->id();

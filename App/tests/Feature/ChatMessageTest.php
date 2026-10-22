@@ -3,10 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\QuestStatusEnum;
+use App\Models\BlockedUserQuest;
 use App\Models\ChatMessage;
 use App\Models\Quest;
+use App\Models\User;
 use Illuminate\Support\Uri;
-use Junges\Kafka\Facades\Kafka;
 
 class ChatMessageTest extends TestCase
 {
@@ -87,6 +88,30 @@ class ChatMessageTest extends TestCase
         );
 
         $response->assertStatus(201);
+    }
+
+    public function testCreateMessageFailBanned()
+    {
+        $quest = Quest::where(
+            'user_id',
+            User::where('name', self::USER_DATA['name'])->firstOrFail()->id
+        )->firstOrFail();
+        BlockedUserQuest::create([
+            'user_id' => User::where('name', self::ANOTHER_USER_DATA['name'])->firstOrFail()->id,
+            'quest_id' => $quest->id,
+            'ip_address' => '127.0.0.1',
+        ]);
+
+        $this->authenticateAnotherUser();
+        $response = $this->request(
+            Uri::route('chats.store', ['quest' => $quest->id]),
+            'POST',
+            data: [
+                'message' => 'Test message',
+            ],
+        );
+
+        $response->assertStatus(403);
     }
 
     public function testUpdateMessageSuccess()
