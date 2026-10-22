@@ -16,8 +16,15 @@ class UpdateClosesCommand extends Command
      */
     public function handle()
     {
-        VoteUpdate::where('closes_at', '>=', now()->toDateTimeString())->update(
-            ['is_closed' => true],
-        );
+        try {
+            $result = VoteUpdate::where('closes_at', '>=', now()->toDateTimeString())->update(
+                ['is_closed' => true],
+            );
+            $this->info("Vote updates are cleared. Rows affected: {$result}.");
+        } catch (\Throwable $th) {
+            $this->error($th->getMessage());
+
+            throw $th;
+        }
     }
 }

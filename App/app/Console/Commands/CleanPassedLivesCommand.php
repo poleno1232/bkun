@@ -16,6 +16,13 @@ class CleanPassedLivesCommand extends Command
      */
     public function handle()
     {
-        Quest::query()->whereDate('next_live_at', '<', now())->update(['next_live_at' => null]);
+        try {
+            $result = Quest::query()->whereDate('next_live_at', '<', now())->update(['next_live_at' => null]);
+            $this->info("Next Live At values cleared. Rows affected: {$result}.");
+        } catch (\Throwable $th) {
+            $this->error($th->getMessage());
+
+            throw $th;
+        }
     }
 }
