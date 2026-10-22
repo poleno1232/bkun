@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ChapterController;
 use App\Http\Controllers\Api\V1\ChatController;
 use App\Http\Controllers\Api\V1\QuestController;
 use App\Http\Controllers\Api\V1\UpdateController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -17,6 +18,10 @@ Route::prefix('v1')->group(function () {
             Route::post('refresh', [AuthController::class, 'refreshToken'])->name('refreshToken');
             Route::get('me', [AuthController::class, 'me'])->name('me');
         });
+    });
+
+    Route::prefix('users')->group(function () {
+        Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
     });
 
     Route::prefix('quests')->group(function () {
@@ -46,7 +51,13 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [QuestController::class, 'store'])->name('quests.store');
-            Route::put('/{quest}', [QuestController::class, 'update'])->name('quests.update');
+            Route::prefix('/{quest}')->group(function () {
+                Route::put('/', [QuestController::class, 'update'])->name('quests.update');
+                Route::post('/{user}/block', [UserController::class, 'blockFromQuest'])
+                    ->name('quests.block.user');
+                Route::post('/{user}/unblock', [UserController::class, 'unblockFromQuest'])
+                    ->name('quests.unblock.user');
+            });
         });
     });
 
