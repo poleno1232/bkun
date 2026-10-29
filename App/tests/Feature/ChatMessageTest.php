@@ -64,6 +64,39 @@ class ChatMessageTest extends TestCase
         $response->assertStatus(201);
     }
 
+    public function testCreateMessageSuccessRolls(): void
+    {
+        $quest = Quest::firstOrFail();
+        $quest->update(['verified_only' => false]);
+        $response = $this->request(
+            Uri::route('chats.store', ['quest' => $quest->id]),
+            'POST',
+            data: [
+                'message' => '/dice 3d6+3i',
+            ],
+        );
+
+        $response->assertStatus(201);
+        $response = $this->request(
+            Uri::route('chats.store', ['quest' => $quest->id]),
+            'POST',
+            data: [
+                'message' => '/roll 3d6+3t10',
+            ],
+        );
+
+        $response->assertStatus(201);
+        $response = $this->request(
+            Uri::route('chats.store', ['quest' => $quest->id]),
+            'POST',
+            data: [
+                'message' => '/dice 3d6',
+            ],
+        );
+
+        $response->assertStatus(201);
+    }
+
     public function testCreateMessageVerifiedOnly()
     {
         $quest = Quest::firstOrFail();

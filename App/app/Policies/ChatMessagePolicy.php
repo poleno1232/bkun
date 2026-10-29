@@ -34,12 +34,4 @@ class ChatMessagePolicy
     {
         return false;
     }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, ChatMessage $chatMessage): bool
-    {
-        return false;
-    }
 }
