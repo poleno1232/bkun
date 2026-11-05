@@ -31,6 +31,7 @@ class QuestTest extends TestCase
         'image_url' => null,
         'status' => QuestStatusEnum::ACTIVE->value,
         'verified_only' => true,
+        'is_live' => true,
     ];
     /**
      * A basic feature test example.

@@ -25,6 +25,7 @@ class QuestResource extends JsonResource
             'description' => $quest->description,
             'image_url' => $quest->image_url,
             'status' => $quest->status->label(),
+            'is_live' => $quest->is_live,
             'user' => $quest->relationLoaded('user')
                 ? UserResource::make($quest->user) : null,
             'chapters' => $quest->relationLoaded('chapters')
