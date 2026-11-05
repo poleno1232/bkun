@@ -19,9 +19,9 @@ class DiceRollerService
     /** @var array<DiceFlaggable> $flagPipeline */
     private array $flagPipeline = [];
 
-    public function parse(string $command): DiceDataDTO
+    public function parse(string $command, string $commandName): DiceDataDTO
     {
-        $argumentsString = str_replace('/dice ', '', $command);
+        $argumentsString = str_replace($commandName . " ", '', $command);
 
         preg_match('/^(\d+)d(\d+)/', $argumentsString, $baseMatches);
 

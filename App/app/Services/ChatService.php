@@ -39,7 +39,7 @@ class ChatService
             });
 
             try {
-                $diceData = $this->diceRollerService->parse($msg->message);
+                $diceData = $this->diceRollerService->parse($msg->message, $matched);
                 $matched == '/dice' ? $this->parseDice($diceData, $msg) : $this->parseRoll($diceData, $msg);
             } catch (\Throwable) {
                 //

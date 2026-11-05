@@ -95,6 +95,18 @@ class ChatMessageTest extends TestCase
         );
 
         $response->assertStatus(201);
+
+        $quest = Quest::firstOrFail();
+        $quest->update(['verified_only' => false]);
+        $response = $this->request(
+            Uri::route('chats.store', ['quest' => $quest->id]),
+            'POST',
+            data: [
+                'message' => '/dice ',
+            ],
+        );
+
+        $response->assertStatus(201);
     }
 
     public function testCreateMessageVerifiedOnly()
